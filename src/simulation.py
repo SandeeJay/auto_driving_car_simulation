@@ -7,34 +7,36 @@ logger = logging.getLogger(__name__)
 
 class Simulation:
     """
-    A class to represent the simulation of cars on a field.
+    Represents the simulation of cars on a field.
 
     Attributes:
     -----------
     field : Field
-        The field on which the simulation is run.
+        The field on which the simulation runs.
     cars : list
-        The list of cars in the simulation.
+        List of cars in the simulation.
     stopped_cars : set
-        The set of cars that have stopped due to collisions.
+        Set of cars that have stopped.
     collisions : dict
-        The dictionary of collisions that occurred during the simulation.
+        Dictionary of collisions that occurred during the simulation.
+    boundary_collisions : dict
+        Dictionary of boundary collisions that occurred during the simulation.
     """
 
     def __init__(self, field):
         """
-        Constructs all the necessary attributes for the simulation object.
+        Initializes the Simulation with a field.
 
         Parameters:
         -----------
         field : Field
-            The field on which the simulation is run.
+            The field on which the simulation runs.
         """
         self.field = field
         self.cars = []
-        self.stopped_cars = set()  # Cars stopped due to collision or boundary
-        self.collisions = {}  # Car-to-car collisions
-        self.boundary_collisions = {}  # Keep track of cars that hit the boundary with step info
+        self.stopped_cars = set()
+        self.collisions = {}
+        self.boundary_collisions = {}
 
     def add_car(self, car):
         """
@@ -51,57 +53,72 @@ class Simulation:
             If a car with the same name already exists in the simulation.
         """
         if any(existing_car.name == car.name for existing_car in self.cars):
-            logger.error("Car name '%s' is already in use.", car.name)
-            raise ValueError(f"Car name '{car.name}' is already in use. Please choose a unique name.")
+            error_message = f"Car name '{car.name}' is already in use. Choose a unique name."
+            logger.error(error_message)
+            raise ValueError(error_message)
         self.cars.append(car)
 
     def reset(self):
-        """Resets the simulation for a new run."""
+        """
+        Resets the simulation by clearing all cars, stopped cars, collisions, and boundary collisions.
+        """
         self.cars = []
         self.stopped_cars = set()
         self.collisions = {}
         self.boundary_collisions = {}
 
-    def show_car_list_with_commands(self):
-        """Displays the list of cars with their commands."""
-        print("Your current list of cars are:")
-        for car in self.cars:
-            print(f"- {car.name}, ({car.x}, {car.y}), {car.direction}, {car.commands}")
-
-    def show_car_list_after_simulation(self):
-        """Displays the list of cars after the simulation."""
-        print("After simulation, the result is:")
-        if self.collisions:
-            for step, (car1, car2, pos) in self.collisions.items():
-                print(f"- {car1} collides with {car2} at {pos} at step {step}")
-        for car in self.cars:
-            if car.name in self.boundary_collisions:
-                step = self.boundary_collisions[car.name]
-                print(f"- {car.name} stopped at ({car.x}, {car.y}) due to hitting the field boundary at step {step}.")
-            else:
-                print(f"- {car.name} , ({car.x}, {car.y}), {car.direction}")
-
-    def report_collision(self, car1, car2, pos, step):
+    def run_simulation(self):
         """
-        Reports a collision between two cars.
+        Runs the simulation by processing each step and checking for collisions.
+        """
+        self.display_initial_car_positions()
+        max_steps = max((len(car.commands) for car in self.cars), default=0)
+        for step in range(max_steps):
+            self.process_step(step)
+        self.display_final_results()
+
+    def process_step(self, step):
+        """
+        Processes a single step of the simulation.
 
         Parameters:
         -----------
-        car1 : str
-            The name of the first car.
-        car2 : str
-            The name of the second car.
-        pos : tuple
-            The position where the collision occurred.
         step : int
-            The step at which the collision occurred.
+            The current step of the simulation.
         """
-        self.collisions[step] = (car1, car2, pos)
-        logger.warning("Collision reported: %s and %s at %s at step %d", car1, car2, pos, step)
+        for car in self.cars:
+            if car.name in self.stopped_cars:
+                continue
+            if step < len(car.commands):
+                self.execute_car_command(car, step)
+        self.check_collisions(step)
+
+    def execute_car_command(self, car, step):
+        """
+        Executes a command for a car at a given step.
+
+        Parameters:
+        -----------
+        car : Car
+            The car for which the command is executed.
+        step : int
+            The current step of the simulation.
+        """
+        command = car.commands[step]
+        previous_position = (car.x, car.y)
+        if command == 'L':
+            car.turn_left()
+        elif command == 'R':
+            car.turn_right()
+        elif command == 'F':
+            car.move_forward(self.field)
+            if (car.x, car.y) == previous_position:
+                self.stopped_cars.add(car.name)
+                self.boundary_collisions[car.name] = step
 
     def check_collisions(self, step):
         """
-        Checks for collisions between cars.
+        Checks for collisions between cars at the current step.
 
         Parameters:
         -----------
@@ -111,38 +128,49 @@ class Simulation:
         positions = {}
         for car in self.cars:
             if car.name not in self.stopped_cars:
-                pos = (car.x, car.y)
-                if pos in positions:
-                    other_car = positions[pos]
-                    self.report_collision(car.name, other_car, pos, step)
-                    self.stopped_cars.add(car.name)
-                    self.stopped_cars.add(other_car)
-                else:
-                    positions[pos] = car.name
+                position = (car.x, car.y)
+                if position in positions:
+                    other_car_name = positions[position]
+                    self.report_collision(car.name, other_car_name, position, step)
+                positions[position] = car.name
 
-    def run_simulation(self):
-        """Runs the simulation."""
-        self.show_car_list_with_commands()
-        max_steps = max(len(car.commands) for car in self.cars)
-        for step in range(max_steps):
-            for car in self.cars:
-                if car.name in self.stopped_cars:
-                    continue
-                if step < len(car.commands):
-                    command = car.commands[step]
-                    if command == 'L':
-                        car.turn_left()
-                    elif command == 'R':
-                        car.turn_right()
-                    elif command == 'F':
-                        previous_x, previous_y = car.x, car.y
-                        try:
-                            car.move_forward(self.field)
-                            # Check if the car has hit the boundary
-                            if car.x == previous_x and car.y == previous_y:
-                                self.stopped_cars.add(car.name)
-                                self.boundary_collisions[car.name] = step + 1
-                        except ValueError as ve:
-                            logger.error("Error moving car %s: %s", car.name, ve)
-            self.check_collisions(step + 1)
-        self.show_car_list_after_simulation()
+    def report_collision(self, car1, car2, pos, step):
+        """
+        Reports a collision between two cars.
+
+        Parameters:
+        -----------
+        car1 : str
+            The name of the first car involved in the collision.
+        car2 : str
+            The name of the second car involved in the collision.
+        pos : tuple
+            The position where the collision occurred.
+        step : int
+            The step at which the collision occurred.
+        """
+        logger.warning("Collision: %s and %s at %s at step %d", car1, car2, pos, step)
+        self.collisions[step] = (car1, car2, pos)
+        self.stopped_cars.update({car1, car2})
+
+    def display_initial_car_positions(self):
+        """
+        Displays the initial positions of all cars in the simulation.
+        """
+        print("Your current list of cars are:")
+        for car in self.cars:
+            print(f"- {car.name}, ({car.x}, {car.y}), {car.direction},  {car.commands}")
+
+    def display_final_results(self):
+        """
+        Displays the final results of the simulation, including collisions and final positions of cars.
+        """
+        print("After simulation, the result is:")
+        for step, (car1, car2, pos) in self.collisions.items():
+            print(f"- Step {step}: {car1} collides with {car2} at {pos}")
+        for car in self.cars:
+            if car.name in self.stopped_cars:
+                print(f"- {car.name} stopped at ({car.x}, {car.y})")
+            else:
+                print(f"- {car.name} , ({car.x}, {car.y}), {car.direction}")
+
