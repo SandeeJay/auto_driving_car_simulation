@@ -46,7 +46,7 @@ def add_car_to_simulation(simulation):
     car = Car(name, x, y, direction)
     car.set_commands(commands)
     simulation.add_car(car)
-
+    simulation.display_initial_car_positions()
 
 def get_valid_car_name(simulation: Simulation):
     """

@@ -67,17 +67,38 @@ To run the tests, use pytest:
 python -m pytest    
 ```
 ## Project Structure
-- main.py: The main entry point for running the simulation.
 - src/: Contains the source code for the simulation.
-  - car.py: Defines the Car class.
-  - field.py: Defines the Field class.
-  - simulation.py: Defines the Simulation class.
+  - auto_driving_car_simulation/
+    - main.py: The main entry point for running the simulation.
+    - simulation/
+      - car.py: Defines the Car class.
+      - field.py: Defines the Field class.
+      - simulation.py: Defines the Simulation class.
+    - localize/
+      - localize.py: Handles localization.
+      - en.yaml: Contains English localization strings.
+    - config/
+      - config.py: Contains configuration settings.
+    - utils/
+      - logger.py: Sets up logging.
 - tests/: Contains the test cases for the project.
-  - test_car.py: Tests for the Car class.
-  - test_field.py: Tests for the Field class.
-  - test_simulation.py: Tests for the Simulation class.
+  - unit/
+    - test_car.py: Tests for the Car class.
+    - test_field.py: Tests for the Field class.
+    - test_simulation.py: Tests for the Simulation class.
+  - integration/
+    - test_main_integration.py: Integration tests for the main.py functions.
+    - test_simulation_integration.py: Integration tests for the Simulation class.
+  - e2e/
+    - test_e2e_one_car.py: End-to-end tests for single car simulation.
+    - test_e2e_two_car_colide.py: End-to-end tests for two car collision simulation.
+- setup.py: Script for setting up the package.
+- README.md: Project documentation.
+- MANIFEST.in: Specifies additional files to include in the package.
+- requirements.txt: Lists the dependencies for the project.
 
 ## Assumptions
 - Application will exit if invalid input provided
 - Car name is mandatory and unique
+- The car name should be a string and at least one character long.
 - Stop moving the car if the new coordinate detected is outside the specified field size or collides with another car
