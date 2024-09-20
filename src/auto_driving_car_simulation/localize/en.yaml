@@ -14,6 +14,7 @@ exit_message: "Thank you for running the simulation. Goodbye!"
 simulation_option_prompt: "Choose an option:\n[1] Add a car\n[2] Run simulation\nYour input: "
 invalid_coordinates_error: "Coordinates must be positive integers or (0,0)."
 out_of_bounds_error: "Car cannot be placed outside the field."
+initial_collides_error: "Position ({x}, {y}) is already occupied by another car. Please choose a different position."
 
 #car
 invalid_car_name_error: "Car must have a valid name."

@@ -48,6 +48,7 @@ def add_car_to_simulation(simulation):
     simulation.add_car(car)
     simulation.display_initial_car_positions()
 
+
 def get_valid_car_name(simulation: Simulation):
     """
     Prompts the user to input a valid car name.
@@ -99,6 +100,9 @@ def get_valid_car_position(simulation, name: str):
                 continue
             if not simulation.field.is_within_boundaries(x, y):
                 print(localizations['out_of_bounds_error'])
+                continue
+            if any(car.x == x and car.y == y for car in simulation.cars):
+                print(localizations['initial_collides_error'].format(x=x, y=y))
                 continue
             return x, y, direction
         except ValueError:

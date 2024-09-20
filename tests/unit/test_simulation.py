@@ -1,4 +1,3 @@
-# tests/unit/test_simulation.py
 import unittest
 from src.auto_driving_car_simulation.simulation.simulation import Simulation
 from src.auto_driving_car_simulation.simulation.car import Car
@@ -6,6 +5,10 @@ from src.auto_driving_car_simulation.simulation.field import Field
 
 
 class TestSimulation(unittest.TestCase):
+
+    def setUp(self):
+        self.field = Field(5, 5)
+        self.simulation = Simulation(self.field)
 
     def test_add_car(self):
         field = Field(5, 5)
@@ -57,6 +60,65 @@ class TestSimulation(unittest.TestCase):
         simulation.add_car(car)
         simulation.run_simulation()
         self.assertIn(car.name, simulation.stopped_cars)
+
+    def test_process_step_execute_commands(self):
+        car = Car("TestCar", 0, 0, 'N')
+        car.set_commands("FFRFF")
+        self.simulation.add_car(car)
+        self.simulation.process_step(0)
+        self.assertEqual(car.x, 0)
+        self.assertEqual(car.y, 1)
+        self.assertEqual(car.direction, 'N')
+
+    def test_execute_car_command_turn_left(self):
+        car = Car("TestCar", 0, 0, 'N')
+        car.set_commands("L")
+        self.simulation.add_car(car)
+        self.simulation.execute_car_command(car, 0)
+        self.assertEqual(car.direction, 'W')
+
+    def test_execute_car_command_turn_right(self):
+        car = Car("TestCar", 0, 0, 'N')
+        car.set_commands("R")
+        self.simulation.add_car(car)
+        self.simulation.execute_car_command(car, 0)
+        self.assertEqual(car.direction, 'E')
+
+    def test_execute_car_command_move_forward_within_boundaries(self):
+        car = Car("TestCar", 0, 0, 'N')
+        car.set_commands("F")
+        self.simulation.add_car(car)
+        self.simulation.execute_car_command(car, 0)
+        self.assertEqual(car.x, 0)
+        self.assertEqual(car.y, 1)
+
+    def test_execute_car_command_move_forward_out_of_boundaries(self):
+        car = Car("TestCar", 0, 4, 'N')
+        car.set_commands("F")
+        self.simulation.add_car(car)
+        self.simulation.execute_car_command(car, 0)
+        self.assertEqual(car.x, 0)
+        self.assertEqual(car.y, 4)
+        self.assertIn(car.name, self.simulation.stopped_cars)
+        self.assertIn(car.name, self.simulation.boundary_collisions)
+
+    def test_no_collision(self):
+        car1 = Car("Car1", 0, 0, 'N')
+        car2 = Car("Car2", 1, 1, 'E')
+        self.simulation.add_car(car1)
+        self.simulation.add_car(car2)
+        self.simulation.check_collisions(0)
+        self.assertEqual(len(self.simulation.collisions), 0)
+
+    def test_single_collision(self):
+        car1 = Car("Car1", 0, 0, 'N')
+        car2 = Car("Car2", 0, 0, 'E')
+        self.simulation.add_car(car1)
+        self.simulation.add_car(car2)
+        self.simulation.check_collisions(0)
+        self.assertEqual(len(self.simulation.collisions), 1)
+        self.assertIn(1, self.simulation.collisions)
+        self.assertEqual(self.simulation.collisions[1], (['Car1', 'Car2'], (0, 0)))
 
 
 if __name__ == '__main__':

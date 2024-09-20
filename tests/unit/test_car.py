@@ -53,3 +53,19 @@ def test_invalid_commands():
     car = Car("TestCar", 0, 0, 'N')
     with pytest.raises(ValueError):
         car.set_commands("XYZ")
+
+
+def test_move_forward_within_boundaries():
+    field = Field(5, 5)
+    car = Car("TestCar", 0, 0, 'N')
+    car.move_forward(field)
+    assert car.x == 0
+    assert car.y == 1
+
+
+def test_move_forward_out_of_boundaries():
+    field = Field(5, 5)
+    car = Car("TestCar", 0, 4, 'N')
+    car.move_forward(field)
+    assert car.x == 0
+    assert car.y == 4  # Sho
