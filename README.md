@@ -54,7 +54,7 @@ This will also install all necessary dependencies:
 
 ## Usage
 
-To run the simulation, execute the installed command:
+To run the simulation, execute the below command:
 ```sh
 start-simulation
 ```
