@@ -1,15 +1,11 @@
+# tests/unit/test_car.py
 import pytest
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-from src.car import Car
-from src.field import Field
+from src.auto_driving_car_simulation.simulation.car import Car
+from src.auto_driving_car_simulation.simulation.field import Field
+from src.auto_driving_car_simulation.simulation.simulation import Simulation
 
 
 def test_car_initialization():
-    """
-    Test the initialization of a Car object.
-    """
     car = Car("TestCar", 0, 0, 'N')
     assert car.name == "TestCar"
     assert car.x == 0
@@ -18,45 +14,42 @@ def test_car_initialization():
 
 
 def test_car_turn_left():
-    """
-    Test the turn_left method of the Car class.
-    """
     car = Car("TestCar", 0, 0, 'N')
     car.turn_left()
     assert car.direction == 'W'
 
 
 def test_car_turn_right():
-    """
-    Test the turn_right method of the Car class.
-    """
     car = Car("TestCar", 0, 0, 'N')
     car.turn_right()
     assert car.direction == 'E'
 
 
 def test_car_move_forward():
-    """
-    Test the move_forward method of the Car class.
-    """
     field = Field(5, 5)
     car = Car("TestCar", 0, 0, 'N')
     car.move_forward(field)
     assert car.y == 1
 
 
-def test_invalid_car_name():
-    """
-    Test the initialization of a Car object with an invalid name.
-    """
+def test_duplicate_car_name():
+    field = Field(5, 5)
+    simulation = Simulation(field)
+    car1 = Car("TestCar", 0, 0, 'N')
+    simulation.add_car(car1)
     with pytest.raises(ValueError):
-        Car("", 0, 0, 'N')
+        Car.validate_car_name("TestCar", simulation)
+
+
+def test_invalid_car_name():
+
+    field = Field(5, 5)
+    simulation = Simulation(field)
+    with pytest.raises(ValueError):
+        Car.validate_car_name("", simulation)
 
 
 def test_invalid_commands():
-    """
-    Test the set_commands method of the Car class with invalid commands.
-    """
     car = Car("TestCar", 0, 0, 'N')
     with pytest.raises(ValueError):
         car.set_commands("XYZ")

@@ -1,9 +1,7 @@
-import logging
-from src.field import Field
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from .field import Field
+from ..localize.localize import localizations
+from ..config.config import Config
+from ..utils.logger import Logger
 
 
 class Car:
@@ -23,7 +21,7 @@ class Car:
     commands : list
         The list of commands for the car to execute.
     """
-    DIRECTIONS = ['N', 'E', 'S', 'W']
+    DIRECTIONS = Config.CAR_DIRECTIONS
 
     def __init__(self, name: str, x: int, y: int, direction: str):
         """
@@ -40,15 +38,15 @@ class Car:
         direction : str
             The direction the car is facing ('N', 'E', 'S', 'W').
         """
-        self._validate_car_name(name)
         self.name = name
         self.x = x
         self.y = y
         self.direction = direction
         self.commands = []
+        self.logger = Logger.setup_logger('CAR')
 
     @staticmethod
-    def _validate_car_name(name: str):
+    def validate_car_name(name: str, simulation):
         """
         Validates the car name.
 
@@ -56,15 +54,24 @@ class Car:
         -----------
         name : str
             The name of the car.
+        simulation : Simulation
+            The simulation object to check for duplicate names.
 
         Raises:
         -------
         ValueError
-            If the name is not a valid string.
+            If the name is not a valid string or is a duplicate.
         """
-        if not name or not isinstance(name, str):
-            logger.error("Invalid car name: %s", name)
-            raise ValueError("Car must have a valid name.")
+        logger = Logger.setup_logger('CAR')
+        if not name or not isinstance(name, str) or len(name) < 1:
+            logger.debug("Invalid car name: %s", name)
+            print(localizations['invalid_car_name_error'])
+            raise ValueError(localizations['invalid_car_name_error'])
+
+        if any(existing_car.name == name for existing_car in simulation.cars):
+            logger.debug("Car name '%s' is already in use. Choose a unique name.", name)
+            print(localizations['duplicate_car_name_error'].format(name=name))
+            raise ValueError(localizations['duplicate_car_name_error'].format(name=name))
 
     def set_commands(self, commands: str):
         """
@@ -74,10 +81,15 @@ class Car:
         -----------
         commands : str
             The commands for the car to execute.
+
+        Raises:
+        -------
+        ValueError
+            If the commands contain invalid characters.
         """
         if not all(c in 'LRF' for c in commands):
-            logger.error("Invalid commands: %s", commands)
-            raise ValueError("Commands must be a combination of 'L', 'R', and 'F'.")
+            self.logger.debug("Invalid commands: %s", commands)
+            raise ValueError(localizations['invalid_command_error'])
         self.commands = commands
 
     def turn_left(self):
@@ -108,5 +120,4 @@ class Car:
         elif self.direction == 'W' and field.is_within_boundaries(self.x - 1, self.y):
             self.x -= 1
         else:
-            logger.error("Move out of field boundaries for car %s", self.name)
-            raise ValueError("Move out of field boundaries.")
+            self.logger.debug("Move out of field boundaries for car %s", self.name)

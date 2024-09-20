@@ -1,7 +1,8 @@
 import unittest
-from src.simulation import Simulation
-from src.car import Car
-from src.field import Field
+import pytest
+from src.auto_driving_car_simulation.simulation.simulation import Simulation
+from src.auto_driving_car_simulation.simulation.car import Car
+from src.auto_driving_car_simulation.simulation.field import Field
 
 
 class TestSimulation(unittest.TestCase):
@@ -28,10 +29,9 @@ class TestSimulation(unittest.TestCase):
         field = Field(5, 5)
         simulation = Simulation(field)
         car1 = Car("TestCar", 0, 0, 'N')
-        car2 = Car("TestCar", 1, 1, 'E')
         simulation.add_car(car1)
-        with self.assertRaises(ValueError):
-            simulation.add_car(car2)
+        with pytest.raises(ValueError):
+            Car.validate_car_name("TestCar", simulation)
 
     def test_reset_simulation(self):
         field = Field(5, 5)
@@ -47,14 +47,14 @@ class TestSimulation(unittest.TestCase):
     def test_collision_detection(self):
         field = Field(5, 5)
         simulation = Simulation(field)
-        car1 = Car("Car1", 0, 0, 'N')
-        car2 = Car("Car2", 0, 1, 'S')
-        car1.set_commands("F")
-        car2.set_commands("F")
+        car1 = Car("Car1", 1, 2, 'N')
+        car2 = Car("Car2", 3, 4, 'W')
+        car1.set_commands("FF")
+        car2.set_commands("FF")
         simulation.add_car(car1)
         simulation.add_car(car2)
         simulation.run_simulation()
-        self.assertIn((0, 1), simulation.collisions.values())
+        self.assertIn((1, 4), [pos for _, pos in simulation.collisions.values()])
 
     def test_boundary_collision(self):
         field = Field(5, 5)

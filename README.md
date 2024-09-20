@@ -24,16 +24,39 @@ A simulation program for autonomous driving cars on a grid. Users can add cars, 
     cd auto-driving-car-simulation
     ```
 
-2. Install the required packages:
+2. Set Up a Virtual Environment (Optional but Recommended):
+
+    Ensure you have Python installed on your system. It is recommended to use a virtual environment to keep dependencies organized and separate from other projects.
     ```sh
-    pip install -r requirements.txt
+    # Create a virtual environment (optional but recommended)
+    python -m venv venv
+    # Activate the virtual environment
+    # On Windows
+    venv\Scripts\activate
+    # On MacOS/Linux
+    source venv/bin/activate
+    
+    # Install the package
+    pip install .
     ```
+3. Install the Package
+
+    Once you are in your desired environment (virtual or global), 
+you can install the `auto_driving_car_simulation` package using pip. 
+This will also install all necessary dependencies:
+
+    ```sh
+    pip install .
+    ```
+
+    This will install the package and create a command-line utility `start-simulation` to run the simulation.
+
 
 ## Usage
 
-To run the simulation, execute the `main.py` file:
+To run the simulation, execute the installed command:
 ```sh
-python main.py
+start-simulation
 ```
 Follow the on-screen instructions to set up the field, add cars, and run the simulation.
 

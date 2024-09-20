@@ -1,0 +1,28 @@
+#main
+welcome_message: "Welcome to Auto Driving Car Simulation!"
+input_dimensions_prompt: "Please enter the width and height of the simulation field in x y format:"
+invalid_input_error: "Invalid input"
+invalid_option_warning: "Invalid option. Choose 1 or 2."
+invalid_dimensions_error: "field width and height must be positive integers."
+field_setup_success: "You have created a field of {width} x {height}."
+car_name_prompt: "Enter the name of the car: "
+car_position_prompt: "Please enter initial position of car {name} in x y Direction format: "
+invalid_direction_error: "Car direction must be N, E, S, W."
+commands_prompt: "Please enter the commands for car {name}: "
+post_simulation_prompt: "Choose from:\n[1] Start over\n[2] Exit\nYour input: "
+exit_message: "Thank you for running the simulation. Goodbye!"
+simulation_option_prompt: "Choose an option:\n[1] Add a car\n[2] Run simulation\nYour input: "
+invalid_coordinates_error: "Coordinates must be positive integers or (0,0)."
+out_of_bounds_error: "Car cannot be placed outside the field."
+
+#car
+invalid_car_name_error: "Car must have a valid name."
+invalid_command_error: "Commands must be a combination of 'L', 'R', and 'F'."
+duplicate_car_name_error: "Car with name {name} already exists. Please enter a different name."
+
+#simulation
+no_cars_error: "No cars added to the simulation. Please add at least one car."
+current_car_list: "Your current list of cars are: "
+simulation_results: "After simulation, the result is:"
+collides_with_car: "- {car1}, collides with {car2} at {pos} at step {step}"
+out_of_bounds_warning: "{car} , ({x}, {y}), {direction} , step(s) {step} ignored due to collided with the field boundary."
