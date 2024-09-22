@@ -77,11 +77,12 @@ class Simulation:
             The current step of the simulation.
         """
         for car in self.cars:
+            self.check_collisions(step)
             if car.name in self.stopped_cars:
                 continue
             if step < len(car.commands):
                 self.execute_car_command(car, step)
-        self.check_collisions(step)
+                self.check_collisions(step)
 
     def execute_car_command(self, car: Car, step: int):
         """
