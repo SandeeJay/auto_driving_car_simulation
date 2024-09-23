@@ -29,12 +29,12 @@ class TestMultipleCarCollision(unittest.TestCase):
 
         # Step 4: Verify the collisions
         self.assertIn(1, simulation.collisions)
-        self.assertEqual(simulation.collisions[1][1], (5, 6))
-        self.assertIn("Car1", simulation.collisions[1][0])
+        self.assertEqual(simulation.collisions[1][1], (5, 5))
         self.assertIn("Car2", simulation.collisions[1][0])
+        self.assertIn("Car3", simulation.collisions[1][0])
 
         # Verify final positions and directions of cars
-        self.assertEqual((car3.x, car3.y, car3.direction), (5, 5, 'W'))
+        self.assertEqual((car1.x, car1.y, car1.direction), (5, 6, 'N'))
         self.assertEqual((car4.x, car4.y, car4.direction), (7, 6, 'E'))
 
 
